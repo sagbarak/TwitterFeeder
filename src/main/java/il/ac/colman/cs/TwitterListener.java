@@ -13,17 +13,17 @@ public class TwitterListener {
 
     cb.setDebugEnabled(true)
 
-            .setOAuthConsumerKey("kBgDpUvomihtFwF0rcRzI0F67")
+            .setOAuthConsumerKey(System.getProperty("config.twitter.consumer.key"))
 
-            .setOAuthConsumerSecret("XBo6y6jFUzERNaww1GUvQ2wKKb9glqrF14aawHz5IPSlI0Pn37")
+            .setOAuthConsumerSecret(System.getProperty("config.twitter.consumer.secret"))
 
-            .setOAuthAccessToken("1167420856462643200-3JqsPS0l02YGI6JRcxVrp1nUkoaFYQ ")
+            .setOAuthAccessToken(System.getProperty("config.twitter.access.token"))
 
-            .setOAuthAccessTokenSecret("WtZLqjwCvcYTeKUsOydRCjcfNN3pe5yfSXD3DFocLwde8");
+            .setOAuthAccessTokenSecret(System.getProperty("config.twitter.access.secret"));
 
 
     // Create our Twitter stream
-
+      
     TwitterStreamFactory tf = new TwitterStreamFactory(cb.build());
 
     TwitterStream twitterStream = tf.getInstance();
@@ -53,7 +53,6 @@ public class TwitterListener {
     twitterStream.addListener(listener);
     // sample() method internally creates a thread which manipulates TwitterStream and calls these adequate listener methods continuously.
     twitterStream.sample();
-
 
   }
 }
