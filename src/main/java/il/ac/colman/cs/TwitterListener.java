@@ -1,8 +1,17 @@
 package il.ac.colman.cs;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicSessionCredentials;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import il.ac.colman.cs.util.AWScred;
 import il.ac.colman.cs.util.LinkExtractor;
+import il.ac.colman.cs.util.TweetJson;
 import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
 
@@ -33,29 +42,29 @@ public class TwitterListener {
 
     StatusListener listener = new StatusListener(){
 
-      AmazonSQS client = AmazonSQSClientBuilder.defaultClient();
+      AmazonSQS client = AWScred.getSQSclient();
+      // AmazonCloudWatch amazonCloudWatch = AWScred.getCloudWatchClient();
 
       public void onStatus(Status status) {
-        if (status.getURLEntities().length != 0 && status.getLang().equals("en")) {
-          System.out.println(status.getUser().getName() + " : " + status.getText());
-          for (URLEntity url : status.getURLEntities()) {
-            JSONObject tweet = new JSONObject();
+        if (status.getURLEntities() != null && status.getLang().equals("en")) {
+          for (final URLEntity map : status.getURLEntities()) {
+            // Send message to a Queue
             try {
-              tweet.put("id", status.getId());
-              tweet.put("url", url.getExpandedURL());
-              tweet.put("track",System.getProperty("config.twitter.track"));
-
-              String tweetOutput = tweet.toString();
-              client.sendMessage(System.getProperty("config.sqs.url"), tweetOutput);
-
-            } catch (JSONException e) {
+              ObjectMapper objectMapper = new ObjectMapper();
+              long id = status.getId();
+              String output = objectMapper.writeValueAsString(new
+                      TweetJson(map.getExpandedURL(),id,System.getProperty("config.twitter.track")));
+              client.sendMessage(System.getProperty("config.sqs.url"), output);
+              System.out.println(output);
+             // Monitoring.CloudWatchTraffic(amazonCloudWatch, 1.00, "TwitterFeeder"
+             //         , System.getProperty("config.twitter.track"));
+            } catch (JsonProcessingException e) {
               e.printStackTrace();
             }
-
-
           }
         }
       }
+
       public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {}
       public void onTrackLimitationNotice(int numberOfLimitedStatuses) {}
 
