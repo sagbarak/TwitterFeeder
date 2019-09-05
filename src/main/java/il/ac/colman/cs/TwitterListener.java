@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import il.ac.colman.cs.util.AWScred;
 import il.ac.colman.cs.util.LinkExtractor;
+import il.ac.colman.cs.util.Monitoring;
 import il.ac.colman.cs.util.TweetJson;
 import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
@@ -43,7 +44,7 @@ public class TwitterListener {
     StatusListener listener = new StatusListener(){
 
       AmazonSQS client = AWScred.getSQSclient();
-      // AmazonCloudWatch amazonCloudWatch = AWScred.getCloudWatchClient();
+      AmazonCloudWatch amazonCloudWatch = AWScred.getCloudWatchClient();
 
       public void onStatus(Status status) {
         if (status.getURLEntities() != null && status.getLang().equals("en")) {
@@ -56,8 +57,9 @@ public class TwitterListener {
                       TweetJson(map.getExpandedURL(),id,System.getProperty("config.twitter.track")));
               client.sendMessage(System.getProperty("config.sqs.url"), output);
               System.out.println(output);
-             // Monitoring.CloudWatchTraffic(amazonCloudWatch, 1.00, "TwitterFeeder"
-             //         , System.getProperty("config.twitter.track"));
+              Monitoring.CloudWatchTraffic(amazonCloudWatch, 1.00, "TwitterFeeder"
+                      , System.getProperty("config.twitter.track"));
+              System.out.println(status.getText());
             } catch (JsonProcessingException e) {
               e.printStackTrace();
             }

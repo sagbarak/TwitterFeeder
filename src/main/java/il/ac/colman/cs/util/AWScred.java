@@ -26,7 +26,7 @@ public class AWScred {
         BasicSessionCredentials session = new BasicSessionCredentials(System.getProperty("aws.accessKeyId"),
                 System.getProperty("aws.secretKey"), System.getProperty("aws.sessionToken"));
         AmazonS3 amazonS3 = AmazonS3Client.builder()
-                .withCredentials(new AWSStaticCredentialsProvider(session)).withRegion(Regions.US_EAST_1).build();
+                .withCredentials(new AWSStaticCredentialsProvider(session)).withRegion(Regions.EU_CENTRAL_1).build();
         return amazonS3;
     }
 
