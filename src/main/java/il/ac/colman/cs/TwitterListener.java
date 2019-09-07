@@ -48,6 +48,7 @@ public class TwitterListener {
 
       public void onStatus(Status status) {
         if (status.getURLEntities() != null && status.getLang().equals("en")) {
+          if(status.getText().contains(System.getProperty("config.twitter.track")))
           for (final URLEntity map : status.getURLEntities()) {
             // Send message to a Queue
             try {

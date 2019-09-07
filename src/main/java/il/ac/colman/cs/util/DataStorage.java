@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import il.ac.colman.cs.ExtractedLink;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -74,6 +75,8 @@ public class DataStorage {
   public void insertTable(ExtractedLink info, Long tweetID, String track) {
 
     try {
+      String screenshot = info.getScreenshotURL();
+      System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" + screenshot);
       DeleteFromDB();
       conn.setAutoCommit(false);
       System.out.println("Open the database");
@@ -86,7 +89,8 @@ public class DataStorage {
       preparedStatement.setString(3,info.getTitle());
       preparedStatement.setString(4,info.getContent());
       preparedStatement.setTimestamp(5,new Timestamp((System.currentTimeMillis())));
-      preparedStatement.setString(6,info.getScreenshotURL());
+      preparedStatement.setString(6,screenshot);
+      System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!! >>>> " + info.getScreenshotURL());
       preparedStatement.setString(7,track);
 
       preparedStatement.executeUpdate();
@@ -130,14 +134,6 @@ public class DataStorage {
       e.printStackTrace();
     }
   }
-  /**
-   * Add link to the database
-   */
-  public void addLink(ExtractedLink link, String track) {
-    /*
-    This is where we'll add our link
-     */
-  }
 
   /**
    * Search for a link
@@ -148,6 +144,34 @@ public class DataStorage {
     Search for query in the database and return the results
      */
 
+    String sql_query = "SELECT * FROM TWEET_DB WHERE CONTENT LIKE ?";
+    try {
+
+      PreparedStatement p = conn.prepareStatement(sql_query);
+      p.setString(1,"%" + query + "%");
+      ResultSet resultSet;
+      resultSet = p.executeQuery();
+      ArrayList<ExtractedLink> tweets = new ArrayList<ExtractedLink>();
+
+      while(resultSet.next())
+      {
+        String description;
+        String content = resultSet.getString("CONTENT");
+        if(content.length() >= 100)
+          description = content.substring(0,99);
+
+        else
+          description = content;
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" + resultSet.getString("SCREENSHOT"));
+        ExtractedLink link = new ExtractedLink(resultSet.getString("LINK"),content,resultSet.getString("TITLE")
+                ,description, resultSet.getString("SCREENSHOT"),resultSet.getString("TIMESTAMP"));
+        tweets.add(link);
+      }
+      return tweets;
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
     return null;
   }
 }

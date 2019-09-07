@@ -11,7 +11,6 @@ public class ScreenshotGenerator {
     UUID uuid = UUID.randomUUID();
     try {
       String screenShotFile = new File(uuid.toString()).toString();
-      //String[] cmd = {"xvfb-run", "--server-args=\"-screen 0 1024x768x24\"", "node screenshot.js",url, tempFile};
       String cmd = "pageres " + url + " 1024x768 --filename='" + screenShotFile + "'";
       AmazonCloudWatch cloudWatch = AWScred.getCloudWatchClient();
       Long startTime = System.nanoTime();
