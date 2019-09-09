@@ -48,23 +48,24 @@ public class TwitterListener {
 
       public void onStatus(Status status) {
         if (status.getURLEntities() != null && status.getLang().equals("en")) {
-          if(status.getText().contains(System.getProperty("config.twitter.track")))
-          for (final URLEntity map : status.getURLEntities()) {
-            // Send message to a Queue
-            try {
-              ObjectMapper objectMapper = new ObjectMapper();
-              long id = status.getId();
-              String output = objectMapper.writeValueAsString(new
-                      TweetJson(map.getExpandedURL(),id,System.getProperty("config.twitter.track")));
-              client.sendMessage(System.getProperty("config.sqs.url"), output);
-              System.out.println(output);
-              Monitoring.CloudWatchTraffic(amazonCloudWatch, 1.00, "TwitterFeeder"
-                      , System.getProperty("config.twitter.track"));
-              System.out.println(status.getText());
-            } catch (JsonProcessingException e) {
-              e.printStackTrace();
+          //if(status.getText().contains(System.getProperty("config.twitter.track"))) {
+            for (final URLEntity map : status.getURLEntities()) {
+              // Send message to a Queue
+              try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                long id = status.getId();
+                String output = objectMapper.writeValueAsString(new
+                        TweetJson(map.getExpandedURL(), id, System.getProperty("config.twitter.track")));
+                client.sendMessage(System.getProperty("config.sqs.url"), output);
+                System.out.println(output);
+                Monitoring.CloudWatchTraffic(amazonCloudWatch, 1.00, "TwitterFeeder"
+                        , System.getProperty("config.twitter.track"));
+                System.out.println(status.getText());
+              } catch (JsonProcessingException e) {
+                e.printStackTrace();
+              }
             }
-          }
+          //}
         }
       }
 

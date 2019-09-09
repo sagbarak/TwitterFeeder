@@ -43,8 +43,11 @@ public class LinkExtractor {
       if(text.length() > 100) {
         description_100_chars = text.substring(0,99);
       }
-      else
+      else {
         description_100_chars = text;
+      }
+      System.out.println(description_100_chars);
+
       LocalTime date = LocalTime.now();
       Long end_time = ((System.nanoTime() - start_time) / 1000000);
       Monitoring.CloudWatchTraffic(cloudWatch,end_time.doubleValue(),"Content URL","Processing time");
