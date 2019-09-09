@@ -59,7 +59,8 @@ public class DataStorage {
               "LINK  TEXT," +
               "TWEETID LONG NOT NULL," +
               "TITLE   TEXT," +
-              "CONTENT  TEXT," +
+              "DESCRIPTION  TEXT," +
+              "CONTENT TEXT," +
               "TIMESTAMP DATETIME," +
               "SCREENSHOT TEXT," +
               "TRACK TEXT)";
@@ -81,17 +82,18 @@ public class DataStorage {
       conn.setAutoCommit(false);
       System.out.println("Open the database");
       String insert_sql_statement = "INSERT INTO TWEET_DB" +
-              "(LINK,TWEETID,TITLE,CONTENT,TIMESTAMP,SCREENSHOT,TRACK) VALUES" +
-              "(?,?,?,?,?,?,?)";
+              "(LINK,TWEETID,TITLE,DESCRIPTION,CONTENT,TIMESTAMP,SCREENSHOT,TRACK) VALUES" +
+              "(?,?,?,?,?,?,?,?)";
       PreparedStatement preparedStatement = conn.prepareStatement(insert_sql_statement);
       preparedStatement.setString(1,info.getUrl());
       preparedStatement.setLong(2,tweetID);
       preparedStatement.setString(3,info.getTitle());
-      preparedStatement.setString(4,info.getContent());
-      preparedStatement.setTimestamp(5,new Timestamp((System.currentTimeMillis())));
-      preparedStatement.setString(6,screenshot);
+      preparedStatement.setString(4,info.getDescription());
+      preparedStatement.setString(5,info.getContent());
+      preparedStatement.setTimestamp(6,new Timestamp((System.currentTimeMillis())));
+      preparedStatement.setString(7,screenshot);
       System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!! >>>> " + info.getScreenshotURL());
-      preparedStatement.setString(7,track);
+      preparedStatement.setString(8,track);
 
       preparedStatement.executeUpdate();
       preparedStatement.close();
@@ -144,24 +146,30 @@ public class DataStorage {
     Search for query in the database and return the results
      */
 
-    String sql_query = "SELECT * FROM TWEET_DB WHERE CONTENT LIKE ?";
+    String sql_query = "SELECT * FROM TWEET_DB WHERE TRACK LIKE ?";
+    if(query==null){
+      sql_query = "SELECT * FROM TWEET_DB";
+    }
     try {
 
       PreparedStatement p = conn.prepareStatement(sql_query);
-      p.setString(1,"%" + query + "%");
+      if(query!=null) {
+        p.setString(1, "%" + query + "%");
+      }
       ResultSet resultSet;
       resultSet = p.executeQuery();
+      System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+      System.out.println(resultSet);
       ArrayList<ExtractedLink> tweets = new ArrayList<ExtractedLink>();
 
       while(resultSet.next())
       {
-        String description;
+        System.out.println("****");
+        String description = resultSet.getString("DESCRIPTION");
         String content = resultSet.getString("CONTENT");
-        if(content.length() >= 100)
-          description = content.substring(0,99);
-
-        else
-          description = content;
+        if(content.length() >= 100) {
+          content = content.substring(0, 99);
+        }
         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" + resultSet.getString("SCREENSHOT"));
         ExtractedLink link = new ExtractedLink(resultSet.getString("LINK"),content,resultSet.getString("TITLE")
                 ,description, resultSet.getString("SCREENSHOT"),resultSet.getString("TIMESTAMP"));
