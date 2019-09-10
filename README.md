@@ -6,7 +6,6 @@ Users can watch all the tweets from the database in web (Json format).
 
 Project structure:
 1. TwitterListener: 
-
 Authenticate with twitter using given keys.
 Import tweets from twitter using twitter4j, a library for Java.
 filter tweets with URL.

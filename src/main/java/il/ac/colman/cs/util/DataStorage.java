@@ -158,19 +158,16 @@ public class DataStorage {
       }
       ResultSet resultSet;
       resultSet = p.executeQuery();
-      System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
       System.out.println(resultSet);
       ArrayList<ExtractedLink> tweets = new ArrayList<ExtractedLink>();
 
       while(resultSet.next())
       {
-        System.out.println("****");
         String description = resultSet.getString("DESCRIPTION");
         String content = resultSet.getString("CONTENT");
         if(content.length() >= 100) {
           content = content.substring(0, 99);
         }
-        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" + resultSet.getString("SCREENSHOT"));
         ExtractedLink link = new ExtractedLink(resultSet.getString("LINK"),content,resultSet.getString("TITLE")
                 ,description, resultSet.getString("SCREENSHOT"),resultSet.getString("TIMESTAMP"));
         tweets.add(link);
